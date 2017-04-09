@@ -2,16 +2,17 @@ package main
 
 import (
 	"errors"
-	"github.com/arachnys/athenapdf/weaver/converter"
-	"github.com/getsentry/raven-go"
-	"github.com/gin-gonic/gin"
-	"gopkg.in/alexcesaro/statsd.v2"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/arachnys/athenapdf/weaver/converter"
+	"github.com/getsentry/raven-go"
+	"github.com/gin-gonic/gin"
+	"gopkg.in/alexcesaro/statsd.v2"
 )
 
 func TestConfigMiddleware(t *testing.T) {
@@ -123,6 +124,19 @@ func TestAuthorizationMiddleware(t *testing.T) {
 	r.GET("/", func(c *gin.Context) {})
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/?auth=123456", nil)
+	r.ServeHTTP(res, req)
+	if got, want := res.Code, http.StatusOK; got != want {
+		t.Fatalf("expected response code to be %d, got %d", want, got)
+	}
+}
+
+func TestAuthorizationMiddleware_viaHeader(t *testing.T) {
+	r := gin.Default()
+	r.Use(AuthorizationMiddleware("123456"))
+	r.GET("/", func(c *gin.Context) {})
+	res := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.Header.Set("X-Auth", "123456")
 	r.ServeHTTP(res, req)
 	if got, want := res.Code, http.StatusOK; got != want {
 		t.Fatalf("expected response code to be %d, got %d", want, got)

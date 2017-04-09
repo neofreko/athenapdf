@@ -2,12 +2,13 @@ package main
 
 import (
 	"errors"
+	"log"
+	"net/http"
+
 	"github.com/arachnys/athenapdf/weaver/converter"
 	"github.com/getsentry/raven-go"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/alexcesaro/statsd.v2"
-	"log"
-	"net/http"
 )
 
 var (
@@ -80,11 +81,11 @@ func ErrorMiddleware() gin.HandlerFunc {
 }
 
 // AuthorizationMiddleware is a simple authorization middleware which matches
-// an authentication key, provided via a query parameter, against a defined
+// an authentication key, provided via a query parameter of http header, against a defined
 // authentication key in the environment config.
 func AuthorizationMiddleware(k string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Query("auth") != k {
+		if c.Query("auth") != k && c.Request.Header.Get("X-Auth") != k {
 			c.AbortWithError(http.StatusUnauthorized, ErrAuthorization).SetType(gin.ErrorTypePublic)
 		}
 
