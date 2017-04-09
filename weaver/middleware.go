@@ -85,7 +85,7 @@ func ErrorMiddleware() gin.HandlerFunc {
 // authentication key in the environment config.
 func AuthorizationMiddleware(k string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Query("auth") != k && c.Request.Header.Get("X-Auth") != k {
+		if c.Query("auth") != k && c.Request.Header.Get("X-Weaver-Auth") != k {
 			c.AbortWithError(http.StatusUnauthorized, ErrAuthorization).SetType(gin.ErrorTypePublic)
 		}
 

@@ -136,7 +136,7 @@ func TestAuthorizationMiddleware_viaHeader(t *testing.T) {
 	r.GET("/", func(c *gin.Context) {})
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
-	req.Header.Set("X-Auth", "123456")
+	req.Header.Set("X-Weaver-Auth", "123456")
 	r.ServeHTTP(res, req)
 	if got, want := res.Code, http.StatusOK; got != want {
 		t.Fatalf("expected response code to be %d, got %d", want, got)
